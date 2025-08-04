@@ -113,7 +113,12 @@ app.get('/callback', async (req: Request, res: Response) => {
 app.get('/logout', (req: Request, res: Response) => {
   delete req.session.accessToken;
   delete req.session.user;
-  res.redirect('/');
+  req.session.save((err) => {
+    if (err) {
+      throw err;
+    }
+    return res.redirect('/');
+  });
 });
 
 app.get('/repos', async (req: Request, res: Response) => {
