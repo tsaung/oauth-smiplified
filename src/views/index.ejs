@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OAuth App</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        text-align: center;
+        padding-top: 50px;
+      }
+      a {
+        background-color: #24292e;
+        color: white;
+        padding: 10px 15px;
+        text-decoration: none;
+        border-radius: 5px;
+        margin: 15px;
+        /* display: block; */
+        display: inline-block;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Welcome to the Simple OAuth App</h1>
+    <% if (user) { %>
+    <p>Hello, <strong><%= user.name %></strong>!</p>
+    <p>You are logged in.</p>
+    <div>
+      <img
+        src="<%= user.avatar_url %>"
+        alt="User avatar"
+        width="100"
+        style="border-radius: 50%"
+      />
+    </div>
+    <a href="/logout">Logout</a>
+    <div>
+        <% if (repos && repos.length > 0) { %>
+        <ul>
+            <%# Use JavaScript's forEach to loop over the array %>
+            <% repos.forEach(function(repo) { %>
+                <li>
+                    <%# The repo name should be a link to its GitHub page %>
+                    <a href="<%= repo.html_url %>" target="_blank">
+                        <%= repo.name %>
+                    </a>
+    
+                    <%# Only show the description if it exists %>
+                    <% if (repo.description) { %>
+                        <p><%= repo.description %></p>
+                    <% } %>
+
+                    <div class="stats">
+                        <% if (repo.language) { %>
+                            <span>
+                                <span class="language-dot"></span><%= repo.language %>
+                            </span>
+                        <% } %>
+                        <span>⭐ <%= repo.stargazers_count %></span>
+                        <span> forks: <%= repo.forks_count %></span>
+                    </div>
+                </li>
+            <% }); %>
+        </ul>
+    <% } else { %>
+        <%# Show this message if the user has no repositories %>
+        <p>No repositories found for this user.</p>
+    <% } %>
+
+    </div>
+    <% } else { %>
+    <p>Please log in to continue.</p>
+    <a href="/login">Login with GitHub</a>
+    <% } %>
+  </body>
+</html>
