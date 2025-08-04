@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>My Repositories</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h2>My Repositories</h2>
+
+      <% if (repos && repos.length > 0) { %>
+      <ul class="repo-list">
+        <% repos.forEach(function(repo) { %>
+        <li class="repo-item">
+          <h3>
+            <a
+              href="<%= repo.html_url %>"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <%= repo.name %>
+            </a>
+          </h3>
+          <% if (repo.description) { %>
+          <p class="description"><%= repo.description %></p>
+          <% } %>
+          <div class="stats">
+            <% if (repo.language) { %>
+            <span><%= repo.language %></span>
+            <% } %>
+            <span>⭐ <%= repo.stargazers_count %></span>
+            <span><%= repo.forks_count %> Forks</span>
+          </div>
+        </li>
+        <% }); %>
+      </ul>
+      <% } else { %>
+      <p>No public repositories found.</p>
+      <% } %>
+
+      <a href="/">← Back to Profile</a>
+    </div>
+  </body>
+</html>

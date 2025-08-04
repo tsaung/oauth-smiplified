@@ -26,10 +26,11 @@ const REDIRECT_URI = process.env.BASE_URL;
 const app = express();
 const port = process.env.port || 3000;
 
+app.use(express.static('public'));
 app.use(
   session({
     store: new FileStore({
-      path: path.join('/sessions'),
+      path: path.join('./../sessions'),
       ttl: 24 * 60 * 60,
       retries: 5,
     }),
@@ -55,22 +56,6 @@ app.get('/', async (req: Request, res: Response) => {
     req.session.user = userResponse;
   }
 
-  if (req.session.user) {
-    const searchParams = new URLSearchParams({
-      sort: 'created',
-      direction: 'desc',
-    });
-    const reposUrl = `${GITHUB_API_URL}/user/repos?${searchParams.toString()}`;
-    const reposResponse = await apiRequest(
-      reposUrl, // `${GITHUB_API_URL`,
-      undefined,
-      req.session.accessToken
-    );
-    return res.render('index', {
-      user: req.session.user,
-      repos: reposResponse,
-    });
-  }
   return res.render('index', { user: req.session.user });
 });
 
@@ -129,6 +114,27 @@ app.get('/logout', (req: Request, res: Response) => {
   delete req.session.accessToken;
   delete req.session.user;
   res.redirect('/');
+});
+
+app.get('/repos', async (req: Request, res: Response) => {
+  if (req.session.accessToken) {
+    const searchParams = new URLSearchParams({
+      sort: 'created',
+      direction: 'desc',
+    });
+    const reposUrl = `${GITHUB_API_URL}/user/repos?${searchParams.toString()}`;
+    const reposResponse = await apiRequest(
+      reposUrl, // `${GITHUB_API_URL`,
+      undefined,
+      req.session.accessToken
+    );
+    return res.render('repos', {
+      user: req.session.user,
+      repos: reposResponse,
+    });
+  }
+
+  return res.redirect('/');
 });
 
 app.listen(port, () => {
