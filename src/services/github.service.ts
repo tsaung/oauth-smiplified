@@ -1,4 +1,3 @@
-import { error } from 'console';
 import fetch from 'node-fetch';
 import { URLSearchParams } from 'url';
 import { GitHubUser, GitHubRepo } from '../types/github';
