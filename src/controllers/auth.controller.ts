@@ -3,12 +3,11 @@ import { promisify } from 'util';
 import crypto from 'crypto';
 import { URLSearchParams } from 'url';
 import * as GithubService from '../services/github.service';
-import dotenv from 'dotenv';
 
 // --- Constants ---
 const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID!;
 const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET!;
-const REDIRECT_URI = process.env.BASE_URL!;
+const REDIRECT_URI = process.env.BASE_URL! + '/callback';
 const GITHUB_AUTHORIZE_URL = 'https://github.com/login/oauth/authorize';
 
 // --- Route Handlers ---
