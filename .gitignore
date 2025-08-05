@@ -5,8 +5,8 @@
 /dist
 
 # Environment variables
-.env
 
 #Session files
 /sessions
 
+config.bat
