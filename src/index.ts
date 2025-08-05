@@ -6,6 +6,7 @@ import session from 'express-session';
 import crypto from 'crypto';
 import { apiRequest } from './auth';
 import sessionFileStore from 'session-file-store';
+import { promisify } from 'util';
 
 const FileStore = sessionFileStore(session);
 declare module 'express-session' {
@@ -30,9 +31,9 @@ app.use(express.static('public'));
 app.use(
   session({
     store: new FileStore({
-      path: path.join('./../sessions'),
+      path: path.join('./sessions'),
       ttl: 24 * 60 * 60,
-      retries: 5,
+      retries: 0,
     }),
     secret: 'keyboard cat',
     resave: false,
@@ -59,11 +60,16 @@ app.get('/', async (req: Request, res: Response) => {
   return res.render('index', { user: req.session.user });
 });
 
-app.get('/login', (req: Request, res: Response) => {
+app.get('/login', async (req: Request, res: Response) => {
+  // delete any existing access token
   delete req.session.accessToken;
-  const state = crypto.randomBytes(16).toString('hex');
 
-  req.session.state = state; // this line save to persistent session file
+  // Generate a random state parameter
+  const state = crypto.randomBytes(16).toString('hex');
+  req.session.state = state;
+
+  // Save the state parameter to the session
+  await promisify(req.session.save.bind(req.session))();
 
   const params = new URLSearchParams({
     response_type: 'code',
@@ -98,27 +104,18 @@ app.get('/callback', async (req: Request, res: Response) => {
     if (!tokenResponse.access_token) {
       return res.status(400).send('No access token from GitHub');
     }
-    req.session.accessToken = tokenResponse.access_token; // but this line didn't save to session file
-    req.session.save((err) => {
-      if (err) throw err;
-      console.log('Session saved');
-      res.redirect('/');
-    });
+    req.session.accessToken = tokenResponse.access_token;
+    await promisify(req.session.save.bind(req.session))();
+    return res.redirect('/');
   } catch (error) {
-    console.error('GitHub access token creation error:', error);
+    console.error('Error in auth callback', error);
     return res.send(`GitHub access token creation error: ${error}`);
   }
 });
 
-app.get('/logout', (req: Request, res: Response) => {
-  delete req.session.accessToken;
-  delete req.session.user;
-  req.session.save((err) => {
-    if (err) {
-      throw err;
-    }
-    return res.redirect('/');
-  });
+app.get('/logout', async (req: Request, res: Response) => {
+  await promisify(req.session.destroy.bind(req.session))();
+  return res.redirect('/');
 });
 
 app.get('/repos', async (req: Request, res: Response) => {
@@ -129,7 +126,7 @@ app.get('/repos', async (req: Request, res: Response) => {
     });
     const reposUrl = `${GITHUB_API_URL}/user/repos?${searchParams.toString()}`;
     const reposResponse = await apiRequest(
-      reposUrl, // `${GITHUB_API_URL`,
+      reposUrl,
       undefined,
       req.session.accessToken
     );
