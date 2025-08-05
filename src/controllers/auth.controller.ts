@@ -6,7 +6,6 @@ import * as GithubService from '../services/github.service';
 import dotenv from 'dotenv';
 
 // --- Constants ---
-dotenv.config();
 const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID!;
 const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET!;
 const REDIRECT_URI = process.env.BASE_URL!;

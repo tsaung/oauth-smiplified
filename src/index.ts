@@ -1,13 +1,13 @@
+import dotenv from 'dotenv';
+dotenv.config();
 import express from 'express';
 import session from 'express-session';
-import dotenv from 'dotenv';
 import path from 'path';
 import sessionFileStore from 'session-file-store';
 
 import apiRoutes from './routes'; // Import the main router
 
 // Config
-dotenv.config();
 const FileStore = sessionFileStore(session);
 const app = express();
 const PORT = process.env.PORT || 3000;
